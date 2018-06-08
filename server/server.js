@@ -3,7 +3,8 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
-
+var brojKonektovanihKorisnika = 0;
+var {generateMessage} = require('./utils/message');
 const publicPath = path.join(__dirname,'..','public');
 const port = process.env.PORT || 3000;
 
@@ -14,28 +15,18 @@ var io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on('connection',(socket) => {
-  console.log('New user connected!');
+  console.log(`New user connected! Broj konektovanih korisnika je: ${++brojKonektovanihKorisnika}` );
 
-  socket.emit('newMessage', {
-    from: 'Admin',
-    text: 'Welcome to the chat app'
-  });
-  socket.broadcast.emit('newMessage',{
-    from: 'Admin',
-    text: 'New user joined',
-    createdAt: new Date().getTime()
-  });
+  socket.emit('newMessage', generateMessage('Admin','Welcome to the chat app'));
+  socket.broadcast.emit('newMessage',generateMessage('Admin','New user joined'));
   socket.on('disconnect', () =>{
-    console.log('Disconnected from server!');
+    console.log(`Disconnected from server!  Broj konektovanih korisnika je: ${--brojKonektovanihKorisnika}`);
   });
 
   socket.on('createMessage', (message)=>{
     console.log('Create message',message);
-    io.emit('newMessage',{
-      from: message.from,
-      text: message.text,
-      createdAt: new Date().getTime() //new Date().toString().slice(16,24)
-    });
+    io.emit('newMessage',generateMessage(message.from,message.text));
+
     // socket.broadcast.emit('newMessage',{
     //   from: message.from,
     //   text: message.text,
