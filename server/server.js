@@ -19,6 +19,16 @@ io.on('connection',(socket) => {
   socket.on('disconnect', () =>{
     console.log('Disconnected from server!');
   });
+
+  socket.on('createMessage', (message)=>{
+    console.log('Create message',message);
+  });
+  socket.emit('newMessage', {
+    from: 'John',
+    text: 'Hey. What is going on.',
+    createdAt: new Date().toString().slice(16,24)
+  });
+
 });
 
 server.listen(port, ()=>{
