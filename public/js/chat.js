@@ -17,7 +17,16 @@ function scrollToBottom(){
 }
 
 socket.on('connect', function() {
-  console.log('Connected to server');
+  var params = jQuery.deparam(window.location.search);
+
+  socket.emit('join',params, function(err){
+    if(err){
+      alert(err);
+      window.location.href = '/';
+    }else{
+      console.log('No error occurred!');
+    }
+  });
 });
 
 socket.on('disconnect', function() {
@@ -46,6 +55,14 @@ socket.on('newLocationMessage', function (message){
   });
   jQuery('#messages').append(html);
   scrollToBottom();
+});
+
+jQuery('#text-box-field').on('keyup', function(){
+  if(jQuery('#text-box-field').val().length === 0){
+    jQuery('#send-message-button').attr('disabled','disabled');
+  }else{
+    jQuery('#send-message-button').removeAttr('disabled');
+  }
 });
 
 jQuery('#message-form').on('submit', function(e) {
